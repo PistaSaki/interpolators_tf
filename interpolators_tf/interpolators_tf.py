@@ -172,10 +172,12 @@ def evaluate_interpolator_tf_one_x(params, values, x, raveled = True):
 def evaluate_interpolator_tf(params, values, x, raveled = True, crop_x = True):
     assert raveled
     assert len(x.shape) in [1, 2]
+    floatX = nptf.np_dtype(x)
     
     if crop_x:
-        min_par = tf.stack([c[0] for c in params])
-        max_par = tf.stack([c[-1] for c in params])
+        min_par = tf.cast(tf.stack([c[0] for c in params]), floatX)
+        max_par = tf.cast(tf.stack([c[-1] for c in params]), floatX)
+                
         if len(x.shape) == 2:
             min_par = min_par[None, :]
             max_par = max_par[None, :]
@@ -240,11 +242,12 @@ class InterpolatorEvaluator_tf:
         """
         assert len(x.shape) in [1, 2]
         self.name = name
+        floatX = nptf.np_dtype(x)
     
         with tf.name_scope(self.name):
             if crop_x:
-                min_par = tf.stack([c[0] for c in params])
-                max_par = tf.stack([c[-1] for c in params])
+                min_par = tf.cast(tf.stack([c[0] for c in params]), floatX)
+                max_par = tf.cast(tf.stack([c[-1] for c in params]), floatX)
                 if len(x.shape) == 2:
                     min_par = min_par[None, :]
                     max_par = max_par[None, :]
