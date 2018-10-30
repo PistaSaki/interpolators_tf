@@ -296,3 +296,32 @@ class InterpolatorEvaluator_tf:
         
     def __call__(self, values):
         return self.eval_itp(values)
+    
+    
+class Interpolator_tf:
+    def __init__(self, params, values, raveled = False):
+        self.params = params
+        self.var_ndim = var_ndim = len(params)
+        
+        if raveled:
+            self.raveled_values = values
+        else:
+            self.unraveled_values = values
+            old_shape = tf.shape(values)
+            
+            new_shape = tf.concat(
+                values = [
+                    tf.reduce_prod(old_shape[:var_ndim], keepdims=True),
+                    old_shape[var_ndim:]
+                ], 
+                axis = 0
+            )
+            self.raveled_values = tf.reshape(values, new_shape)
+            
+    def __call__(self, x):
+        return evaluate_interpolator_tf(
+            params = self.params,
+            values = self.raveled_values,
+            x = x,
+            raveled = True
+        )
